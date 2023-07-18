@@ -1,7 +1,7 @@
 # Variables
-EXTENSION_NAME = "[NAME]"
+EXTENSION_NAME = "createpdf"
 DOCKER_IMAGE = ${EXTENSION_NAME}:latest
-PORT = 8077
+PORT = 7272
 
 # Phony targets
 .PHONY: docker docker-build docker-run
