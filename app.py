@@ -68,5 +68,73 @@ def create_text_pdf(pages = olo.Json()):
     
     return olo.OutputFile(output_filename)
 
+@olo.register(description="""
+This function takes a list of 'pages', where each 'page' is a list of 'cells'. Each 'cell' is a dictionary of parameters that specify its properties. The function generates a PDF with the given configuration. The cells on a page are processed from top to bottom, and pages are processed in the order they appear in the list. 
+
+Each 'cell' dictionary can include the following properties:
+
+'w' (width): Cell width. If None or 0, the cell extends up to the right margin.
+
+'h' (height): Cell height. If None, the height is equal to the current font size.
+
+'txt' (text): String to print. 
+
+'border': Indicates if borders must be drawn around the cell. 
+
+'align': Sets text alignment inside the cell. Possible values are 'L' (left align), 'C' (center), and 'R' (right align).
+
+'font_family': Font family. Can be 'Courier', 'Helvetica', 'Arial', 'Times', 'Symbol', 'ZapfDingbats' or a name defined by add_font.
+
+'font_style': Font style. Possible values are 'B' (bold), 'I' (italic), 'U' (underline), and empty string (regular).
+
+'font_size': Font size. 
+
+Please note that all parameters are optional, and will use default values if not provided.
+""")
+def create_text_image_pdf(pages = olo.Json()):
+    from fpdf import FPDF
+
+    pdf = FPDF()
+    
+    for page in pages:
+        pdf.add_page()
+        for cell in page:
+            # Extract cell parameters
+            print("CELL IS: ", cell)
+            if "txt" in cell:
+                w = cell.get('w', 0)
+                h = cell.get('h', pdf.font_size)
+                txt = cell.get('txt', '')
+                border = cell.get('border', 0)
+                align = cell.get('align', 'L')
+                font_family = cell.get('font_family', 'Arial')
+                font_style = cell.get('font_style', '')
+                font_size = cell.get('font_size', 16)
+                link = cell.get('link', '')
+                fill = cell.get('fill', False)
+            
+                # Set font for each cell
+                pdf.set_font(family=font_family, style=font_style, size=font_size)
+            
+                # Write cell content
+                pdf.multi_cell(w, h, txt, border, align, fill, link)
+            elif "img" in cell:
+                x = cell.get('x', 20)
+                y = cell.get('y', 20)
+                w = cell.get('w', 300)
+                h = cell.get('h', 300)
+                print(cell)
+                img = cell.get('img', '')
+                img_name = olo.download_from_signed_url(img['url'])
+                print("Image name: ", img_name)
+                pdf.image(img_name, x, y)
+            
+    output_filename = "generated_pdf.pdf"
+    pdf.output(output_filename, 'F')
+    
+    return olo.OutputFile(output_filename)
+    
+    
+
 if __name__ == "__main__":
     olo.run("createpdf", port=80)

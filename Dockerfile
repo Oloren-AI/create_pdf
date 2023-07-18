@@ -3,6 +3,7 @@ FROM python:3.10-slim-bullseye
 
 # Installing necessary packages
 RUN pip install fpdf2
+RUN pip install PyPDF2
 RUN pip install oloren==0.0.48
 
 # Copying application code to the Docker image
